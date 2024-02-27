@@ -9,29 +9,10 @@
       />
       <button type="submit">Search</button>
     </form>
-
-    <div class="card" style="width: 18rem" v-if="searchSuccess == true">
-      <img :src="pokemonData.image" alt="" class="card-img-top" />
-      <div class="card-body">
-        <h5 class="card-title">Name: {{ pokemonData.name }}</h5>
-        <h5 class="card-title">Type: {{ pokemonData.type }}</h5>
-        <h5 class="card-title">Height: {{ pokemonData.height }}</h5>
-        <h5 class="card-title">Weight: {{ pokemonData.weight }}</h5>
-        <h5 class="card-title">Stats</h5>
-
-        <p class="card-text">hp {{ pokemonData.hp }}</p>
-        <p class="card-text">attack {{ pokemonData.attack }}</p>
-        <p class="card-text">defence {{ pokemonData.defence }}</p>
-        <p class="card-text">special attack {{ pokemonData.special_attack }}</p>
-        <p class="card-text">
-          special defence {{ pokemonData.special_defence }}
-        </p>
-        <p class="card-text">speed {{ pokemonData.speed }}</p>
-
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-    <div class="card" style="width: 18rem" v-if="searchError == true">
+    <template v-if="searchSuccess == true">
+      <PokemonCard :pokemonData="pokemonData" />
+    </template>
+    <div class="card" style="width: 18rem" v-else-if="searchError == true">
       <div class="card-body">
         <h5 class="card-title">Nessun Pokemon trovato</h5>
       </div>
@@ -42,6 +23,7 @@
 <script setup>
 import axios from 'axios';
 import { ref, computed } from 'vue';
+import PokemonCard from './PokemonCard.vue';
 
 const pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 let pokeSearch = ref('');
@@ -49,10 +31,14 @@ let searchSuccess = ref(false);
 let searchError = ref(false);
 let axiosData = ref({});
 let pokemonData = computed(() => {
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return {
     image: axiosData.sprites.front_default,
-    name: axiosData.name,
-    type: axiosData.types[0].type.name,
+    name: capitalizeFirstLetter(axiosData.name),
+    type: capitalizeFirstLetter(axiosData.types[0].type.name),
     height: axiosData.height,
     weight: axiosData.weight,
     hp: axiosData.stats[0].base_stat,
