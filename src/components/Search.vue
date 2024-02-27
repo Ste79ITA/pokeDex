@@ -24,7 +24,6 @@
 import axios from 'axios';
 import { ref, computed } from 'vue';
 import PokemonCard from './PokemonCard.vue';
-
 const pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 let pokeSearch = ref('');
 let searchSuccess = ref(false);
