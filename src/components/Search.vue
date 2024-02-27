@@ -9,7 +9,8 @@
       />
       <button type="submit">Search</button>
     </form>
-    <div class="card" style="width: 18rem">
+
+    <div class="card" style="width: 18rem" v-if="searchSuccess == true">
       <img :src="pokemonData.image" alt="" class="card-img-top" />
       <div class="card-body">
         <h5 class="card-title">Name: {{ pokemonData.name }}</h5>
@@ -26,7 +27,13 @@
           special defence {{ pokemonData.special_defence }}
         </p>
         <p class="card-text">speed {{ pokemonData.speed }}</p>
+
         <a href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>
+    <div class="card" style="width: 18rem" v-if="searchError == true">
+      <div class="card-body">
+        <h5 class="card-title">Nessun Pokemon trovato</h5>
       </div>
     </div>
   </div>
@@ -34,11 +41,28 @@
 
 <script setup>
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 let pokeSearch = ref('');
-let pokemonData = ref({});
+let searchSuccess = ref(false);
+let searchError = ref(false);
+let axiosData = ref({});
+let pokemonData = computed(() => {
+  return {
+    image: axiosData.sprites.front_default,
+    name: axiosData.name,
+    type: axiosData.types[0].type.name,
+    height: axiosData.height,
+    weight: axiosData.weight,
+    hp: axiosData.stats[0].base_stat,
+    attack: axiosData.stats[1].base_stat,
+    defence: axiosData.stats[2].base_stat,
+    special_attack: axiosData.stats[3].base_stat,
+    special_defence: axiosData.stats[4].base_stat,
+    speed: axiosData.stats[5].base_stat,
+  };
+});
 
 function search() {
   axios
@@ -47,24 +71,15 @@ function search() {
       if (pokeSearch.value.length === 0) {
         return;
       } else {
-        console.log(res.data);
-        pokemonData.value = {
-          image: res.data.sprites.front_default,
-          name: res.data.name,
-          type: res.data.types[0].type.name,
-          height: res.data.height,
-          weight: res.data.weight,
-          hp: res.data.stats[0].base_stat,
-          attack: res.data.stats[1].base_stat,
-          defence: res.data.stats[2].base_stat,
-          special_attack: res.data.stats[3].base_stat,
-          special_defence: res.data.stats[4].base_stat,
-          speed: res.data.stats[5].base_stat,
-        };
+        axiosData = res.data;
+        searchError.value = false;
+        searchSuccess.value = true;
       }
     })
     .catch(function (error) {
       console.log(error.response.data);
+      searchSuccess.value = false;
+      searchError.value = true;
     });
 }
 </script>
